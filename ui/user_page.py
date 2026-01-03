@@ -9,14 +9,14 @@ class UserPage:
         self.app = app
 
     def show_personnel(self):
-        self.show_user_list("Personel", DataBase().get_all_personnel())
+        self.show_user_list(self.app.t["menu_personnel"], DataBase().get_all_personnel())
 
     def show_customers(self):
-        self.show_user_list("Müşteri", DataBase().get_all_customers(), is_customer=True)
+        self.show_user_list(self.app.t["menu_customer"], DataBase().get_all_customers(), is_customer=True)
 
     def show_user_list(self, user_type, data, is_customer=False):
         self.app.clear_main_frame()
-        tk.Label(self.app.main_frame, text=f"{user_type} Yönetimi", bg=self.app.main_bg, fg="#004f63", font=("Segoe UI", 24, "bold")).pack(pady=20)
+        tk.Label(self.app.main_frame, text=user_type, bg=self.app.main_bg, fg="#004f63", font=("Segoe UI", 24, "bold")).pack(pady=20)
 
         table_frame = tk.Frame(self.app.main_frame, bg=self.app.main_bg)
         table_frame.pack(fill="both", expand=True, padx=20, pady=10)
@@ -28,16 +28,16 @@ class UserPage:
         self.app.user_tree.pack(fill="both", expand=True)
 
         for col in columns: 
-            if col == "cats": self.app.user_tree.heading(col, text="Sahiplendiği Kediler")
-            else: self.app.user_tree.heading(col, text=col.capitalize())
+            self.app.user_tree.heading(col, text=col.capitalize())
             
-        for item in data:
-            if is_customer:
-                l = list(item)
-                if l[5] is None: l[5] = "-"
-                self.app.user_tree.insert("", tk.END, values=l)
-            else:
-                self.app.user_tree.insert("", tk.END, values=item)
+        if data:
+            for item in data:
+                if is_customer:
+                    l = list(item)
+                    if len(l) > 5 and l[5] is None: l[5] = "-"
+                    self.app.user_tree.insert("", tk.END, values=l)
+                else:
+                    self.app.user_tree.insert("", tk.END, values=item)
 
         btn_frame = tk.Frame(self.app.main_frame, bg=self.app.main_bg)
         btn_frame.pack(pady=10)
@@ -46,16 +46,16 @@ class UserPage:
         cmd_del = self.delete_customer if is_customer else self.delete_personnel
         cmd_upd = self.open_customer_update if is_customer else self.open_personnel_update
 
-        ttk.Button(btn_frame, text=f"YENİ {user_type.upper()} EKLE", style="Menu.TButton", command=cmd_add).pack(side="left", padx=10)
-        ttk.Button(btn_frame, text="GÜNCELLE", style="Menu.TButton", command=cmd_upd).pack(side="left", padx=10)
-        ttk.Button(btn_frame, text="SİL", style="Menu.TButton", command=cmd_del).pack(side="left", padx=10)
+        ttk.Button(btn_frame, text="EKLE / ADD", style="Menu.TButton", command=cmd_add).pack(side="left", padx=10)
+        ttk.Button(btn_frame, text="GÜNCELLE / UPDATE", style="Menu.TButton", command=cmd_upd).pack(side="left", padx=10)
+        ttk.Button(btn_frame, text="SİL / DELETE", style="Menu.TButton", command=cmd_del).pack(side="left", padx=10)
 
     def add_personnel_form(self): self.user_form("Personel", "personel")
-    def add_customer_form(self): self.user_form("Müşteri", "customer")
+    def add_customer_form(self): self.user_form("Customer", "customer")
 
     def user_form(self, title, role):
         self.app.clear_main_frame()
-        tk.Label(self.app.main_frame, text=f"Yeni {title} Kaydı", bg=self.app.main_bg, fg="#004f63", font=("Segoe UI", 24, "bold")).pack(pady=20)
+        tk.Label(self.app.main_frame, text=f"Yeni {title}", bg=self.app.main_bg, fg="#004f63", font=("Segoe UI", 24, "bold")).pack(pady=20)
         form_frame = tk.Frame(self.app.main_frame, bg=self.app.main_bg)
         form_frame.pack(pady=10)
 
@@ -67,17 +67,15 @@ class UserPage:
         def save():
             if not self.app.u_user.get(): return
             
-            # --- TELEFON KONTROLÜ ---
             if len(self.app.u_phone.get()) != 10:
                 from tkinter import messagebox
-                messagebox.showwarning("Hata", "Telefon numarası 10 haneli olmalıdır (Örn: 5xxxxxxxxx)")
+                messagebox.showwarning("Error", self.app.t["error_phone"])
                 return
-            # -----------------------
 
             db = DataBase()
             db.add_user(self.app.u_user.get(), self.app.u_pass.get(), role, self.app.u_name.get(), self.app.u_phone.get())
             from tkinter import messagebox
-            messagebox.showinfo("Başarılı", "Eklendi!")
+            messagebox.showinfo("OK", "Eklendi!")
             if role == "personel": self.show_personnel()
             else: self.show_customers()
 
@@ -92,15 +90,14 @@ class UserPage:
         uid = self.app.user_tree.item(sel)['values'][0]
         if uid == self.app.current_user[0]: 
             from tkinter import messagebox
-            messagebox.showerror("Hata", "Kendini silemezsin!")
+            messagebox.showerror("Error", "Kendini silemezsin!")
             return
         
         DataBase().delete_user(uid)
         refresh_func()
 
-    # --- GÜNCELLEME İŞLEMLERİ ---
     def open_personnel_update(self): self.open_update_form("Personel", "personel", self.show_personnel)
-    def open_customer_update(self): self.open_update_form("Müşteri", "customer", self.show_customers)
+    def open_customer_update(self): self.open_update_form("Customer", "customer", self.show_customers)
 
     def open_update_form(self, title, role, refresh_func):
         sel = self.app.user_tree.selection()
@@ -123,16 +120,15 @@ class UserPage:
         self.app.upt_u_pass.insert(0, values[4])
 
         def save_update():
-             # --- TELEFON KONTROLÜ ---
             if len(self.app.upt_u_phone.get()) != 10:
                 from tkinter import messagebox
-                messagebox.showwarning("Hata", "Telefon numarası 10 haneli olmalıdır (Örn: 5xxxxxxxxx)")
+                messagebox.showwarning("Error", self.app.t["error_phone"])
                 return
             
             db = DataBase()
             db.update_user(user_id, self.app.upt_u_name.get(), self.app.upt_u_user.get(), self.app.upt_u_phone.get(), self.app.upt_u_pass.get())
             from tkinter import messagebox
-            messagebox.showinfo("Başarılı", "Güncellendi")
+            messagebox.showinfo("OK", "Güncellendi")
             refresh_func()
 
         ttk.Button(self.app.main_frame, text="GÜNCELLE", style="Menu.TButton", command=save_update).pack(pady=20)

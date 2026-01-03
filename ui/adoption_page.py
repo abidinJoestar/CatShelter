@@ -3,6 +3,7 @@ from tkinter import ttk
 import sys
 sys.path.append("..") 
 from database import DataBase 
+from ui.cat_page import CatPage
 
 class AdoptionPage:
     def __init__(self, app):
@@ -16,25 +17,24 @@ class AdoptionPage:
 
         if status == "Tedavide":
             from tkinter import messagebox
-            messagebox.showinfo("Bilgi", "Bu kedi şu an tedavide.")
+            messagebox.showinfo("Info", self.app.t["msg_wait"])
             return
         elif status != "Barınakta":
             from tkinter import messagebox
-            messagebox.showwarning("Uyarı", "Bu kedi uygun değil.")
+            messagebox.showwarning("Warning", self.app.t["msg_invalid"])
             return
 
         from tkinter import messagebox
-        if messagebox.askyesno("Başvuru", f"{cat_name} için başvur?"):
+        # Başvuru sorusu basit kalsın, çok karışık olmasın
+        if messagebox.askyesno("Confirm", f"{cat_name} ?"):
             db = DataBase()
             db.apply_adoption(cat_id, self.app.current_user[0])
-            messagebox.showinfo("Başarılı", "Başvuru alındı.")
-            # Kedi listesine geri dönmek için CatPage kullanıyoruz
-            from ui.cat_page import CatPage
+            messagebox.showinfo("OK", self.app.t["msg_app_sent"])
             CatPage(self.app).show_cats()
 
     def show_applications(self):
         self.app.clear_main_frame()
-        tk.Label(self.app.main_frame, text="Bekleyen Başvurular", bg=self.app.main_bg, fg="#004f63", font=("Segoe UI", 24, "bold")).pack(pady=20)
+        tk.Label(self.app.main_frame, text=self.app.t["header_apps"], bg=self.app.main_bg, fg="#004f63", font=("Segoe UI", 24, "bold")).pack(pady=20)
         
         table_frame = tk.Frame(self.app.main_frame, bg=self.app.main_bg)
         table_frame.pack(fill="both", expand=True, padx=20, pady=10)
@@ -51,8 +51,10 @@ class AdoptionPage:
 
         btn_frame = tk.Frame(self.app.main_frame, bg=self.app.main_bg)
         btn_frame.pack(pady=10)
-        ttk.Button(btn_frame, text="ONAYLA ✅", style="Menu.TButton", command=lambda: self.process_app("approve")).pack(side="left", padx=10)
-        ttk.Button(btn_frame, text="REDDET ❌", style="Menu.TButton", command=lambda: self.process_app("reject")).pack(side="left", padx=10)
+        
+        # BUTONLAR BURADA DEĞİŞTİ
+        ttk.Button(btn_frame, text=self.app.t["btn_approve"], style="Menu.TButton", command=lambda: self.process_app("approve")).pack(side="left", padx=10)
+        ttk.Button(btn_frame, text=self.app.t["btn_reject"], style="Menu.TButton", command=lambda: self.process_app("reject")).pack(side="left", padx=10)
 
     def process_app(self, decision):
         selected = self.app.app_tree.selection()
@@ -63,7 +65,7 @@ class AdoptionPage:
 
     def show_my_cats(self):
         self.app.clear_main_frame()
-        tk.Label(self.app.main_frame, text="Sahiplendiğim Dostlarım", bg=self.app.main_bg, fg="#004f63", font=("Segoe UI", 24, "bold")).pack(pady=20)
+        tk.Label(self.app.main_frame, text=self.app.t["header_my_cats"], bg=self.app.main_bg, fg="#004f63", font=("Segoe UI", 24, "bold")).pack(pady=20)
         table_frame = tk.Frame(self.app.main_frame, bg=self.app.main_bg)
         table_frame.pack(fill="both", expand=True, padx=20, pady=10)
         
