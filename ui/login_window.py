@@ -16,10 +16,8 @@ class LoginWindow:
         self.bg_color = "#cbeef7" 
         self.root.configure(bg=self.bg_color)
         
-        # Telefon doğrulama
         self.vcmd = (self.root.register(self.validate_phone), '%P')
 
-        # --- STİL ---
         self.style = ttk.Style()
         self.style.theme_use('clam')
         self.style.configure("TLabel", background=self.bg_color, foreground="#2c3e50", font=("Segoe UI", 11))
@@ -28,7 +26,6 @@ class LoginWindow:
         self.style.map("TButton", background=[("active","#1abc9c")]) 
         self.style.configure("TRadiobutton", background=self.bg_color, font=("Segoe UI", 10))
 
-        # --- DİL BUTONU (YENİ & ŞIK) ---
         btn_text = "🇹🇷 TR" if self.current_lang == "TR" else "🇬🇧 EN"
         
         self.lang_btn = tk.Button(self.root, text=btn_text, font=("Segoe UI", 10, "bold"), 
@@ -38,7 +35,6 @@ class LoginWindow:
         
         self.lang_btn.place(relx=0.95, y=20, anchor="ne")
 
-        # --- ORTA ÇERÇEVE ---
         self.center_frame = tk.Frame(self.root, bg=self.bg_color, width=320, height=600)
         self.center_frame.pack_propagate(False)
         self.center_frame.pack(expand=True)
@@ -93,13 +89,12 @@ class LoginWindow:
         return True
 
     def toggle_language(self):
-        """Dili değiştirir ve butonu günceller"""
         if self.current_lang == "TR":
             self.current_lang = "EN"
-            self.lang_btn.config(text="🇬🇧 EN") # İngiliz Bayrağı Emojisi
+            self.lang_btn.config(text="🇬🇧 EN") 
         else:
             self.current_lang = "TR"
-            self.lang_btn.config(text="🇹🇷 TR") # Türk Bayrağı Emojisi
+            self.lang_btn.config(text="🇹🇷 TR") 
             
         self.update_ui_text()
 
