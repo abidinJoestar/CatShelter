@@ -10,7 +10,7 @@ class LoginWindow:
     def __init__(self, root, on_login_success, lang="TR"):
         self.root = root
         self.on_login_success = on_login_success
-        self.current_lang = lang # DEĞİŞİKLİK 2: Gelen dili kullandık (Eskiden direkt "TR" idi)
+        self.current_lang = lang 
         
         self.root.geometry("600x750")
         self.bg_color = "#cbeef7" 

@@ -132,7 +132,7 @@ class CatPage:
 
         try:
             db = DataBase()
-            db.add_cat(name, db_breed, self.age_combo.get(), db_gender, "Barınakta", self.app.health_entry.get(), "", lang=self.app.lang) 
+            db.add_cat(name, db_breed, self.age_combo.get(), db_gender, "Barınakta", health_notes, "", lang=self.app.lang) 
 
             messagebox.showinfo("OK", self.app.t["msg_added"])
             self.show_cats() 
